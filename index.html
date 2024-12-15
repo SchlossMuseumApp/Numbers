@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Children's Audio Guide</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            line-height: 1.5;
+            background-color: #FFFAE6; /* Light yellow background */
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .instruction {
+            margin-bottom: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #FF5722; /* Orange color */
+        }
+        .display {
+            font-size: 28px;
+            border: 3px solid #4CAF50;
+            background-color: #DFFFD6; /* Light green background */
+            padding: 15px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto 20px auto;
+            text-align: center;
+            border-radius: 10px;
+            color: #333;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .button {
+            font-size: 20px;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background-color: #FF9800; /* Bright orange */
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            background-color: #F57C00;
+            transform: scale(1.1);
+        }
+        .button:active {
+            transform: translateY(5px);
+        }
+        .play-button {
+            background-color: #4CAF50; /* Green color for Play */
+        }
+        .back-button {
+            background-color: #F44336; /* Red color for ← */
+        }
+        #audio-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #007BFF; /* Blue color */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p id="instruction" class="instruction">
+            Hello Kids! 😊<br>
+            Enter the number you see in the museum and press the green Play button to hear the story!
+        </p>
+        <div id="display" class="display">0</div>
+        <div id="audio-title">Pick a number!</div>
+        <audio id="audio-player" controls style="width: 100%; max-width: 600px; display: none; margin: 20px auto;" controlslist="nodownload">
+            Your browser does not support the audio player.
+        </audio>
+        <div class="button-container">
+            <button class="button" onclick="addNumber(1)">1</button>
+            <button class="button" onclick="addNumber(2)">2</button>
+            <button class="button" onclick="addNumber(3)">3</button>
+            <button class="button" onclick="addNumber(4)">4</button>
+            <button class="button" onclick="addNumber(5)">5</button>
+            <button class="button" onclick="addNumber(6)">6</button>
+            <button class="button" onclick="addNumber(7)">7</button>
+            <button class="button" onclick="addNumber(8)">8</button>
+            <button class="button" onclick="addNumber(9)">9</button>
+            <button class="button" onclick="addNumber(0)">0</button>
+            <button class="button back-button" onclick="removeLast()">←</button>
+            <button class="button play-button" onclick="playAudio()">▶</button>
+        </div>
+    </div>
+
+    <script>
+        let currentNumber = '';
+        const titlesUrl = "https://schlossmuseumwf.github.io/audio/titles.json";
+        let titles = {};
+
+        fetch(titlesUrl)
+            .then(response => response.json())
+            .then(data => {
+                titles = data;
+                console.log("JSON data loaded:", titles);
+            })
+            .catch(error => {
+                console.error("Error loading titles.json:", error);
+            });
+
+        function addNumber(num) {
+            if (currentNumber.length < 5) {
+                currentNumber += num;
+                document.getElementById('display').textContent = currentNumber || '0';
+            }
+        }
+
+        function removeLast() {
+            currentNumber = currentNumber.slice(0, -1);
+            document.getElementById('display').textContent = currentNumber || '0';
+        }
+
+        function playAudio() {
+            if (currentNumber) {
+                const language = 'en'; // Language set to English
+                const audioUrl = `https://schlossmuseumwf.github.io/audio/mp3/${language}/${currentNumber}.mp3`;
+                const audioPlayer = document.getElementById('audio-player');
+                const audioTitle = document.getElementById('audio-title');
+
+                const numericNumber = parseInt(currentNumber, 10);
+                const title = titles[language] && titles[language][numericNumber];
+
+                if (title) {
+                    audioTitle.textContent = title;
+                    audioTitle.style.display = 'block';
+                } else {
+                    audioTitle.textContent = `Audio Number: ${currentNumber}`;
+                }
+
+                audioPlayer.src = audioUrl;
+                audioPlayer.style.display = 'block';
+                audioPlayer.play();
+            } else {
+                alert("Please enter a number before pressing 'Play'.");
+            }
+        }
+    </script>
+</body>
+</html>
